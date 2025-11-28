@@ -1,0 +1,1190 @@
+import 'package:flutter/material.dart';
+
+// Define a consistent dark green color for the theme
+const Color _darkGreen = Color(0xFF1B5E20); // A dark shade of green, equivalent to Colors.green[800]
+
+void main() {
+  runApp(const HostelManagementApp());
+}
+
+class HostelManagementApp extends StatelessWidget {
+  const HostelManagementApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'IERT Hostel', // Changed app name
+      theme: ThemeData(
+        primaryColor: _darkGreen,
+        colorScheme: ColorScheme.fromSeed(seedColor: _darkGreen, primary: _darkGreen),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: _darkGreen, // Dark green app bar
+          foregroundColor: Colors.white,
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: _darkGreen, // Dark green elevated buttons by default
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 15),
+          ),
+        ),
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const LoginSelectionScreen(),
+        '/adminDashboard': (context) => const AdminDashboard(),
+        '/studentDashboard': (context) => const StudentDashboard(),
+      },
+    );
+  }
+}
+
+// Login Selection Screen
+class LoginSelectionScreen extends StatelessWidget {
+  const LoginSelectionScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey[100],
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.apartment,
+                size: 120,
+                color: _darkGreen, // Changed icon color to dark green
+              ),
+              const SizedBox(height: 30),
+              const Text(
+                'IERT Hostel', // Changed app name here as well
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: _darkGreen, // Changed text color to dark green
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Choose your login type',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.grey,
+                ),
+              ),
+              const SizedBox(height: 50),
+              SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<AdminLoginScreen>(builder: (context) => const AdminLoginScreen()),
+                    );
+                  },
+                  // Style inherited from theme now, removed explicit backgroundColor
+                  child: const Text(
+                    'Admin Login',
+                    style: TextStyle(fontSize: 18), // Color is white from theme
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 60,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute<StudentLoginScreen>(builder: (context) => const StudentLoginScreen()),
+                    );
+                  },
+                  // Style inherited from theme now, removed explicit backgroundColor
+                  child: const Text(
+                    'Student Login',
+                    style: TextStyle(fontSize: 18), // Color is white from theme
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Admin Login Screen
+class AdminLoginScreen extends StatefulWidget {
+  const AdminLoginScreen({super.key});
+
+  @override
+  State<AdminLoginScreen> createState() => _AdminLoginScreenState();
+}
+
+class _AdminLoginScreenState extends State<AdminLoginScreen> {
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  // Admin credentials
+  static const String _adminUsername = "admin";
+  static const String _adminPassword = "admin123";
+
+  void _login() async {
+    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter both username and password')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    await Future<void>.delayed(const Duration(seconds: 2));
+
+    if (_usernameController.text == _adminUsername && _passwordController.text == _adminPassword) {
+      Navigator.pushReplacementNamed(context, '/adminDashboard');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid credentials')),
+      );
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Admin Login'),
+        // Background color now from theme
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.admin_panel_settings,
+              size: 80,
+              color: _darkGreen, // Changed icon color to dark green
+            ),
+            const SizedBox(height: 30),
+            TextField(
+              controller: _usernameController,
+              decoration: const InputDecoration(
+                labelText: 'Username',
+                prefixIcon: Icon(Icons.person),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                prefixIcon: Icon(Icons.lock),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 30),
+            _isLoading
+                ? const CircularProgressIndicator()
+                : SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _login,
+                      // Style inherited from theme now
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(fontSize: 18), // Color is white from theme
+                      ),
+                    ),
+                  ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// Student Login Screen
+class StudentLoginScreen extends StatefulWidget {
+  const StudentLoginScreen({super.key});
+
+  @override
+  State<StudentLoginScreen> createState() => _StudentLoginScreenState();
+}
+
+class _StudentLoginScreenState extends State<StudentLoginScreen> {
+  final TextEditingController _studentIdController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  void _login() async {
+    if (_studentIdController.text.isEmpty || _passwordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter both Student ID and password')),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    await Future<void>.delayed(const Duration(seconds: 2));
+
+    // For demonstration, any non-empty student ID and password will log in
+    Navigator.pushReplacementNamed(context, '/studentDashboard');
+
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _studentIdController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text('Student Login'),
+        // Background color now from theme
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.school,
+              size: 80,
+              color: _darkGreen, // Changed icon color to dark green
+            ),
+            const SizedBox(height: 30),
+            TextField(
+              controller: _studentIdController,
+              decoration: const InputDecoration(
+                labelText: 'Student ID',
+                prefixIcon: Icon(Icons.badge),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _passwordController,
+              obscureText: true,
+              decoration: const InputDecoration(
+                labelText: 'Password',
+                prefixIcon: Icon(Icons.lock),
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 30),
+            _isLoading
+                ? const CircularProgressIndicator()
+                : SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _login,
+                      // Style inherited from theme now
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(fontSize: 18), // Color is white from theme
+                      ),
+                    ),
+                  ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ------------------ Admin and Student Dashboards ------------------
+
+// Admin Dashboard
+class AdminDashboard extends StatefulWidget {
+  const AdminDashboard({super.key});
+
+  @override
+  State<AdminDashboard> createState() => _AdminDashboardState();
+}
+
+class _AdminDashboardState extends State<AdminDashboard> {
+  int _currentIndex = 0;
+
+  final List<Widget> _screens = <Widget>[
+    const HostelAllotmentScreen(),
+    const VacancyScreen(),
+    const StudentDetailsScreen(),
+    const FeedbackScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Admin Dashboard'),
+        // Background color now from theme
+      ),
+      body: _screens[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (int index) => setState(() => _currentIndex = index),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: _darkGreen, // Ensure selected item is dark green
+        unselectedItemColor: Colors.grey, // Optional: for contrast
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.assignment), label: 'Allotment'),
+          BottomNavigationBarItem(icon: Icon(Icons.bed), label: 'Vacancy'),
+          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Students'),
+          BottomNavigationBarItem(icon: Icon(Icons.feedback), label: 'Feedback'),
+        ],
+      ),
+    );
+  }
+}
+
+// Student Data Model
+class StudentProfileData {
+  final String rollNo;
+  final String branch;
+  final String roomAllotted;
+  final String year;
+  final String phone;
+  final String feeDetails;
+  final String casteCategory; // New field
+  final String parentsContact; // New field
+
+  const StudentProfileData({
+    required this.rollNo,
+    required this.branch,
+    required this.roomAllotted,
+    required this.year,
+    required this.phone,
+    required this.feeDetails,
+    required this.casteCategory, // Required in constructor
+    required this.parentsContact, // Required in constructor
+  });
+}
+
+// Student Dashboard
+class StudentDashboard extends StatefulWidget {
+  const StudentDashboard({super.key});
+
+  @override
+  State<StudentDashboard> createState() => _StudentDashboardState();
+}
+
+class _StudentDashboardState extends State<StudentDashboard> {
+  int _currentIndex = 0; // Student Profile will be at index 0
+
+  // Dummy student data - updated with new fields
+  final StudentProfileData _dummyStudentData = const StudentProfileData(
+    rollNo: '2021B1A7001P',
+    branch: 'Computer Science',
+    roomAllotted: 'H1-305',
+    year: '3rd Year',
+    phone: '+91 9876543210',
+    feeDetails: 'Paid (Due: Jan 2025)',
+    casteCategory: 'General', // Dummy value
+    parentsContact: '+91 9988776655', // Dummy value
+  );
+
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = <Widget>[
+      StudentProfileScreen(studentData: _dummyStudentData), // Student Profile is now first
+      const FeeDetailsScreen(),
+      const ComplaintScreen(),
+      const NoticesScreen(),
+    ];
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Student Dashboard'),
+        // Background color now from theme
+      ),
+      body: _screens[_currentIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (int index) => setState(() => _currentIndex = index),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: _darkGreen, // Ensure selected item is dark green
+        unselectedItemColor: Colors.grey, // Optional: for contrast
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'), // Profile is now first
+          BottomNavigationBarItem(icon: Icon(Icons.payment), label: 'Fees'),
+          BottomNavigationBarItem(icon: Icon(Icons.report_problem), label: 'Complaints'),
+          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notices'),
+        ],
+      ),
+    );
+  }
+}
+
+// ------------------ Admin Screens ------------------
+
+class HostelAllotmentScreen extends StatelessWidget {
+  const HostelAllotmentScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Hostel Allotment',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 20),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Student ID',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Room Number',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Hostel Block',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Room allotted successfully!')),
+                      );
+                    },
+                    // Style inherited from theme
+                    child: const Text('Allot Room'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Recent Allotments',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 5,
+            itemBuilder: (BuildContext context, int index) {
+              return ListTile(
+                leading: Icon(Icons.person, color: _darkGreen), // Icon color to dark green
+                title: Text('Student ${index + 1}'),
+                subtitle: Text('Room ${101 + index} - Block A'),
+                trailing: IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Editing allotment for Student ${index + 1}')),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class VacancyScreen extends StatelessWidget {
+  const VacancyScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Hostel Vacancy',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 20),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              childAspectRatio: 1.2,
+            ),
+            itemCount: 4,
+            itemBuilder: (BuildContext context, int index) {
+              List<String> blocks = ['Block A', 'Block B', 'Block C', 'Block D'];
+              List<int> vacancies = [5, 12, 8, 3];
+              List<int> totalRooms = [50, 60, 45, 40];
+              // Adjusted colors: Primary theme color for first two, retain semantic for others.
+              List<Color> colors = [_darkGreen, Colors.green[600]!, Colors.orange, Colors.red];
+
+              return Card(
+                color: colors[index],
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        blocks[index],
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        '${vacancies[index]} / ${totalRooms[index]}',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        'Vacant',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withOpacity(0.8), // Using withOpacity
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class StudentDetailsScreen extends StatelessWidget {
+  const StudentDetailsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Student Details',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Search Students',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: 10,
+            itemBuilder: (BuildContext context, int index) {
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: _darkGreen, // Changed avatar background
+                    child: const Icon(Icons.person, color: Colors.white), // Icon color
+                  ),
+                  title: Text('Student ${index + 1}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('ID: STU00${index + 1}'),
+                      const Text('Branch: Computer Science'),
+                      Text('Year: ${2023 + (index % 4)}'),
+                      Text('Room: ${101 + index} - Block ${String.fromCharCode(65 + index % 4)}'),
+                    ],
+                  ),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.visibility),
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Viewing details for Student ${index + 1}')),
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class FeedbackScreen extends StatelessWidget {
+  const FeedbackScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Student Feedback',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: 8,
+            itemBuilder: (BuildContext context, int index) {
+              List<String> categories = <String>[
+                'Cleanliness', 'Food Quality', 'Staff Behavior',
+                'Infrastructure', 'Security', 'WiFi', 'Maintenance', 'Other'
+              ];
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 20,
+                            backgroundColor: _darkGreen, // Changed avatar background
+                            child: const Icon(Icons.person, color: Colors.white), // Icon color
+                          ),
+                          const SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Student ${index + 1}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text('Room ${101 + index}'),
+                            ],
+                          ),
+                          const Spacer(),
+                          Chip(
+                            label: Text(categories[index % categories.length]),
+                            backgroundColor: _darkGreen.withOpacity(0.1), // Adjusted chip color
+                            labelStyle: const TextStyle(color: _darkGreen), // Adjusted label color
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      const Text(
+                        'The hostel facilities are good but the WiFi speed needs improvement in the evenings.',
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      const SizedBox(height: 10),
+                      const Row(
+                        children: [
+                          Icon(Icons.star, color: Colors.amber, size: 16),
+                          Icon(Icons.star, color: Colors.amber, size: 16),
+                          Icon(Icons.star, color: Colors.amber, size: 16),
+                          Icon(Icons.star, color: Colors.amber, size: 16),
+                          Icon(Icons.star_half, color: Colors.amber, size: 16),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ------------------ Student Screens ------------------
+
+class FeeDetailsScreen extends StatelessWidget {
+  const FeeDetailsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Fee Details',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 20),
+          Card(
+            color: _darkGreen.withOpacity(0.05), // Adjusted card color
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: Icon(Icons.account_balance_wallet, color: _darkGreen), // Icon color
+                    title: const Text('Total Fee'),
+                    subtitle: const Text('₹ 50,000 /-'),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.payment, color: _darkGreen), // Icon color
+                    title: const Text('Paid Amount'),
+                    subtitle: const Text('₹ 45,000 /-'),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.pending_actions, color: Colors.orange), // Retain semantic color
+                    title: const Text('Pending Amount'),
+                    subtitle: const Text('₹ 5,000 /-'),
+                  ),
+                  ListTile(
+                    leading: Icon(Icons.calendar_today, color: Colors.red), // Retain semantic color
+                    title: const Text('Due Date'),
+                    subtitle: const Text('15 Dec 2024'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Payment History',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 5,
+            itemBuilder: (BuildContext context, int index) {
+              List<String> dates = <String>[
+                '2024-01-15', '2024-02-15', '2024-03-15',
+                '2024-04-15', '2024-05-15'
+              ];
+              List<String> amounts = ['10,000', '10,000', '10,000', '10,000', '5,000'];
+              List<String> methods = ['Online', 'Cash', 'Online', 'Cheque', 'Online'];
+
+              return Card(
+                child: ListTile(
+                  leading: Icon(Icons.receipt, color: _darkGreen), // Icon color
+                  title: Text('₹ ${amounts[index]}'),
+                  subtitle: Text('Paid on ${dates[index]}'),
+                  trailing: Chip(
+                    label: Text(methods[index]),
+                    backgroundColor: _darkGreen.withOpacity(0.1), // Adjusted chip color
+                    labelStyle: const TextStyle(color: _darkGreen), // Adjusted label color
+                  ),
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Proceeding to payment gateway...')),
+                );
+              },
+              // Style inherited from theme
+              child: const Text(
+                'Pay Now',
+                style: TextStyle(fontSize: 18), // Color white from theme
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ComplaintScreen extends StatelessWidget {
+  const ComplaintScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'File a Complaint',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 20),
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  TextFormField(
+                    decoration: const InputDecoration(
+                      labelText: 'Complaint Title',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  DropdownButtonFormField<String>(
+                    decoration: const InputDecoration(
+                      labelText: 'Category',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: const <DropdownMenuItem<String>>[
+                      DropdownMenuItem<String>(value: 'maintenance', child: Text('Maintenance')),
+                      DropdownMenuItem<String>(value: 'cleaning', child: Text('Cleaning')),
+                      DropdownMenuItem<String>(value: 'electricity', child: Text('Electricity')),
+                      DropdownMenuItem<String>(value: 'water', child: Text('Water Supply')),
+                      DropdownMenuItem<String>(value: 'security', child: Text('Security')),
+                      DropdownMenuItem<String>(value: 'other', child: Text('Other')),
+                    ],
+                    onChanged: (String? value) {},
+                  ),
+                  const SizedBox(height: 10),
+                  TextFormField(
+                    maxLines: 4,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Complaint submitted successfully!')),
+                      );
+                    },
+                    // Style inherited from theme
+                    child: const Text('Submit Complaint'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Recent Complaints',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 10),
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: 5,
+            itemBuilder: (BuildContext context, int index) {
+              List<String> statuses = ['Pending', 'In Progress', 'Resolved', 'Pending', 'Resolved'];
+              // Adjusted status colors: blue changed to dark green
+              List<Color> statusColors = <Color>[
+                Colors.orange, _darkGreen, _darkGreen, Colors.orange, _darkGreen
+              ];
+
+              return Card(
+                child: ListTile(
+                  leading: Icon(Icons.report_problem, color: _darkGreen), // Icon color
+                  title: Text('Complaint ${index + 1}'),
+                  subtitle: Text('Submitted on 2024-0${index + 1}-10'),
+                  trailing: Chip(
+                    label: Text(
+                      statuses[index],
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    backgroundColor: statusColors[index],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class NoticesScreen extends StatelessWidget {
+  const NoticesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Notices & Announcements',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: 10,
+            itemBuilder: (BuildContext context, int index) {
+              List<String> titles = <String>[
+                'Hostel Maintenance Schedule',
+                'Fee Payment Deadline',
+                'Summer Vacation Notice',
+                'WiFi Maintenance',
+                'Common Room Rules',
+                'Mess Timings Update',
+                'Security Guidelines',
+                'Water Supply Interruption',
+                'Festival Celebration',
+                'Important Contact Numbers'
+              ];
+
+              List<String> dates = <String>[
+                '2024-01-15', '2024-01-12', '2024-01-10',
+                '2024-01-08', '2024-01-05', '2024-01-03',
+                '2024-01-01', '2023-12-28', '2023-12-25', '2023-12-20'
+              ];
+
+              // Using a consistent dark green for avatar backgrounds,
+              // or shades of green for variety but adherence to theme.
+              List<Color> avatarBackgrounds = <Color>[
+                _darkGreen, Colors.green[700]!, Colors.teal[700]!, _darkGreen,
+                Colors.lime[700]!, Colors.brown[700]!, Colors.purple[700]!, Colors.cyan[700]!,
+                Colors.indigo[700]!, Colors.blueGrey[700]!
+              ];
+
+
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                color: _darkGreen.withOpacity(0.05), // Card background light green
+                child: ListTile(
+                  leading: CircleAvatar(
+                    backgroundColor: avatarBackgrounds[index % avatarBackgrounds.length], // Variety in dark green shades
+                    child: const Icon(Icons.notifications, color: Colors.white),
+                  ),
+                  title: Text(titles[index]),
+                  subtitle: Text('Posted on: ${dates[index]}'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    showDialog<void>(
+                      context: context,
+                      builder: (BuildContext context) => AlertDialog(
+                        title: Text(titles[index]),
+                        content: Text(
+                          'This is the detailed content of the notice regarding ${titles[index]}. '
+                          'All students are requested to read this notice carefully and comply with the instructions.',
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Close', style: TextStyle(color: _darkGreen)), // Button text color
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class StudentProfileScreen extends StatelessWidget {
+  final StudentProfileData studentData;
+
+  const StudentProfileScreen({super.key, required this.studentData});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(vertical: 20.0),
+      child: Column(
+        children: [
+          StudentProfileCard(
+            rollNo: studentData.rollNo,
+            branch: studentData.branch,
+            roomAllotted: studentData.roomAllotted,
+            year: studentData.year,
+            phone: studentData.phone,
+            feeDetails: studentData.feeDetails,
+            casteCategory: studentData.casteCategory, // Pass new field
+            parentsContact: studentData.parentsContact, // Pass new field
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'This is your detailed student profile.',
+              style: TextStyle(fontSize: 16, color: Colors.grey[600]),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class StudentProfileCard extends StatelessWidget {
+  final String rollNo;
+  final String branch;
+  final String roomAllotted;
+  final String year;
+  final String phone;
+  final String feeDetails;
+  final String casteCategory; // New field
+  final String parentsContact; // New field
+
+  const StudentProfileCard({
+    super.key,
+    required this.rollNo,
+    required this.branch,
+    required this.roomAllotted,
+    required this.year,
+    required this.phone,
+    required this.feeDetails,
+    required this.casteCategory, // Required in constructor
+    required this.parentsContact, // Required in constructor
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      elevation: 8,
+      color: _darkGreen.withOpacity(0.05), // Light background color, adjusted
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: CircleAvatar(
+                radius: 40,
+                backgroundColor: _darkGreen, // Changed avatar background to dark green
+                child: const Icon(Icons.person, size: 50, color: Colors.white),
+              ),
+            ),
+            const SizedBox(height: 20),
+            _profileRow("Roll No.", rollNo),
+            _profileRow("Branch", branch),
+            _profileRow("Room Allotted", roomAllotted),
+            _profileRow("Year", year),
+            _profileRow("Phone No.", phone),
+            _profileRow("Caste Category", casteCategory), // Display new field
+            _profileRow("Parents Contact", parentsContact), // Display new field
+            _profileRow("Fee Details", feeDetails),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _profileRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
+      child: Row(
+        children: [
+          Text(
+            "$label: ",
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: Colors.black87,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 16, color: Colors.black87),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
